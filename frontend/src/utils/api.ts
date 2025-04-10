@@ -1,8 +1,8 @@
-const API = "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL; // ✅ use env variable
 
 export async function encrypt(message: string, e: string, n: string) {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:3001/api/crypto/encrypt", {
+  const res = await fetch(`${API}/api/crypto/encrypt`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -15,7 +15,7 @@ export async function encrypt(message: string, e: string, n: string) {
 
 export async function decrypt(ciphertext: string, d: string, n: string) {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:3001/api/crypto/decrypt", {
+  const res = await fetch(`${API}/api/crypto/decrypt`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export async function login(username: string, password: string) {
 
 export async function getHistory() {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:3001/api/history", {
+  const res = await fetch(`${API}/api/history`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -56,4 +56,3 @@ export async function getHistory() {
   });
   return await res.json();
 }
-

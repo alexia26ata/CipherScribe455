@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL; // ✅ use env variable
+const API = import.meta.env.VITE_API_URL; 
 
 export async function encrypt(message: string, e: string, n: string) {
   const token = localStorage.getItem("token");
@@ -54,6 +54,28 @@ export async function getHistory() {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API}/api/history`, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await res.json();
+}
+
+export async function deleteHistoryItem(id: string) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API}/api/history/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await res.json();
+}
+
+export async function clearHistoryBackend() {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API}/api/history`, {
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
     },

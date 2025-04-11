@@ -1,4 +1,3 @@
-
 export interface EncryptionHistoryItem {
   id: string;
   timestamp: number;
@@ -7,25 +6,37 @@ export interface EncryptionHistoryItem {
   keyUsed: string; // Just storing the key type and size for security
 }
 
-const STORAGE_KEY = 'rsa_encryption_history';
+const getUsernameFromToken = (): string | null => {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.username || null;
+  } catch (e) {
+    console.error('Failed to decode token:', e);
+    return null;
+  }
+};
+
+const getStorageKey = (): string => {
+  const user = getUsernameFromToken();
+  return user ? `rsa_encryption_history_${user}` : 'rsa_encryption_history_guest';
+};
 
 export const saveToHistory = (item: Omit<EncryptionHistoryItem, 'id' | 'timestamp'>): void => {
   try {
-    // Get existing history
     const history = getHistory();
-    
-    // Create new history item
+
     const newItem: EncryptionHistoryItem = {
       ...item,
       id: generateId(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
-    // Add to beginning of history
+
     history.unshift(newItem);
-    
-    // Save back to storage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+    localStorage.setItem(getStorageKey(), JSON.stringify(history));
   } catch (error) {
     console.error('Failed to save to history:', error);
   }
@@ -33,7 +44,7 @@ export const saveToHistory = (item: Omit<EncryptionHistoryItem, 'id' | 'timestam
 
 export const getHistory = (): EncryptionHistoryItem[] => {
   try {
-    const history = localStorage.getItem(STORAGE_KEY);
+    const history = localStorage.getItem(getStorageKey());
     return history ? JSON.parse(history) : [];
   } catch (error) {
     console.error('Failed to get history:', error);
@@ -42,14 +53,14 @@ export const getHistory = (): EncryptionHistoryItem[] => {
 };
 
 export const clearHistory = (): void => {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(getStorageKey());
 };
 
 export const deleteHistoryItem = (id: string): void => {
   try {
     const history = getHistory();
     const updatedHistory = history.filter(item => item.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
+    localStorage.setItem(getStorageKey(), JSON.stringify(updatedHistory));
   } catch (error) {
     console.error('Failed to delete history item:', error);
   }

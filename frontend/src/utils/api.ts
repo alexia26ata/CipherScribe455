@@ -42,7 +42,11 @@ export async function login(username: string, password: string) {
     body: JSON.stringify({ username, password }),
   });
   const data = await res.json();
-  if (data.token) localStorage.setItem("token", data.token);
+
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
+
   return data;
 }
 

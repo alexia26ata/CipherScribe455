@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import KeyGenerator from './KeyGenerator';
@@ -11,7 +10,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-const CipherScribeLayout: React.FC = () => {
+interface CipherScribeLayoutProps {
+  onAuthenticated: (user: { username: string }) => void;
+}
+
+const CipherScribeLayout: React.FC<CipherScribeLayoutProps> = ({ onAuthenticated }) => {
   const [activeTab, setActiveTab] = useState<string>("keys");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userData, setUserData] = useState<{ username: string } | null>(null);
@@ -26,6 +29,7 @@ const CipherScribeLayout: React.FC = () => {
         const parsedData = JSON.parse(sessionData);
         setUserData(parsedData);
         setIsAuthenticated(true);
+        onAuthenticated(parsedData); // 👈 propagate to App.tsx
       } catch (e) {
         console.error("Failed to restore session", e);
       }
@@ -35,8 +39,8 @@ const CipherScribeLayout: React.FC = () => {
   const handleAuthenticated = (userData: { username: string }) => {
     setUserData(userData);
     setIsAuthenticated(true);
-    // Store session in sessionStorage (cleared when browser is closed)
     sessionStorage.setItem('rsa_auth_session', JSON.stringify(userData));
+    onAuthenticated(userData); // 👈 propagate to App.tsx
   };
 
   const handleLogout = () => {

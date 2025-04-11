@@ -1,8 +1,11 @@
-
 import CipherScribeLayout from '@/components/CipherScribeLayout';
 
-const Index = () => {
-  return <CipherScribeLayout />;
+interface IndexProps {
+  onAuthenticated: (user: { username: string }) => void;
+}
+
+const Index = ({ onAuthenticated }: IndexProps) => {
+  return <CipherScribeLayout onAuthenticated={onAuthenticated} />;
 };
 
 export default Index;

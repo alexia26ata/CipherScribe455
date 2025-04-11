@@ -9,6 +9,8 @@ import { Copy, History, Trash2, Search, X, Clock, Key } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 
+const API = import.meta.env.VITE_API_URL;
+
 const HistoryPanel: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -35,7 +37,7 @@ const HistoryPanel: React.FC = () => {
   const handleClearHistory = async () => {
     if (window.confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
       try {
-        await fetch("http://localhost:3001/api/history", {
+        await fetch(`${API}/api/history`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -59,7 +61,7 @@ const HistoryPanel: React.FC = () => {
 
   const handleDeleteItem = async (id: string) => {
     try {
-      await fetch(`http://localhost:3001/api/history/${id}`, {
+      await fetch(`${API}/api/history/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

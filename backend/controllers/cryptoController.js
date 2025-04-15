@@ -1,26 +1,39 @@
-const Message = require('../models/Message');
-
-exports.encryptMessage = async (req, res) => {
-    const { message, e, n } = req.body;
-    const m = BigInt(message);
-    const c = m ** BigInt(e) % BigInt(n);
-    const saved = await Message.create({
-        user: req.user.id,
-        direction: 'encrypt',
-        input: message,
-        output: c.toString()
-    });
-    res.json({ ciphertext: c.toString() });
-};
-
-exports.decryptMessage = async (req, res) => {
-    const { ciphertext, d, n } = req.body;
-    const m = BigInt(ciphertext) ** BigInt(d) % BigInt(n);
-    const saved = await Message.create({
-        user: req.user.id,
-        direction: 'decrypt',
-        input: ciphertext,
-        output: m.toString()
-    });
-    res.json({ message: m.toString() });
-};
+const {
+    generateRSAKeyPair,
+    encryptInteger,
+    decryptInteger
+  } = require('../utils/rsaUtils');
+  
+  // Example: Generate keys
+  exports.generateKeys = async (req, res) => {
+    try {
+      const bits = parseInt(req.query.bits) || 2048; // allow 1024/2048
+      const keys = await generateRSAKeyPair(bits);
+      res.json(keys);
+    } catch (err) {
+      res.status(500).json({ error: 'Key generation failed' });
+    }
+  };
+  
+  // Example: Encrypt
+  exports.encryptMessage = (req, res) => {
+    const { message, publicKey } = req.body;
+    try {
+      const ciphertext = encryptInteger(message, publicKey);
+      res.json({ ciphertext });
+    } catch (err) {
+      res.status(400).json({ error: 'Encryption failed' });
+    }
+  };
+  
+  // Example: Decrypt
+  exports.decryptMessage = (req, res) => {
+    const { ciphertext, privateKey } = req.body;
+    try {
+      const message = decryptInteger(ciphertext, privateKey);
+      res.json({ message });
+    } catch (err) {
+      res.status(400).json({ error: 'Decryption failed' });
+    }
+  };
+  
